@@ -3,6 +3,7 @@ export interface SingleData {
   Name: string;
   Email: string;
   Mobile: string;
-  Address?: Array<string>;
+  Address: Array<string>;
+  Birthday: string;
 }
 export type Data = Array<SingleData>;

@@ -19,6 +19,8 @@ const App = () => {
     Name: '',
     Email: '',
     Mobile: '',
+    Address: [''],
+    Birthday: '',
   };
   let [openModal, setOpenModal] = useState('');
   let [modalReadOnly, setModalReadOnly] = useState<boolean>(false);

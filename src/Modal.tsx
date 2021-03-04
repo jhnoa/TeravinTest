@@ -1,7 +1,8 @@
 import React from 'react';
-import { Form, Input, Button, Modal } from 'antd';
+import { Form, Input, Button, Modal, DatePicker } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { SingleData } from './types';
+import Moment, { Moment as MomentType } from 'moment';
 
 const formItemLayout = {
   labelCol: { span: 4 },
@@ -14,14 +15,19 @@ const formItemLayoutWithOutLabel = {
 type Props = {
   openModal: string;
   setOpenModal: Function;
-  data?: SingleData;
+  data: SingleData;
   readOnly?: boolean;
 };
+
+interface DataToShow extends Omit<SingleData, 'Birthday'> {
+  Birthday?: MomentType;
+}
 
 const ModalView = (props: Props) => {
   const { openModal, setOpenModal, data, readOnly } = props;
   const [form] = Form.useForm();
-
+  const { Birthday, ...otherData } = !!data && data;
+  const dataToShow: DataToShow = !!data && { ...otherData };
   console.log(form);
   const onCheck = async () => {
     try {
@@ -46,7 +52,9 @@ const ModalView = (props: Props) => {
   };
   let useFooter = {};
   if (readOnly && openModal !== 'Delete') useFooter = { footer: null };
-
+  if (data && data.Birthday) {
+    dataToShow.Birthday = Moment(data.Birthday);
+  }
   return (
     <Modal
       title={openModal + ' Employee'}
@@ -55,7 +63,13 @@ const ModalView = (props: Props) => {
       onOk={onModalSubmit}
       {...useFooter}
     >
-      <Form form={form} name="Employee" initialValues={data} labelAlign="left">
+      <Form
+        form={form}
+        name="Employee"
+        initialValues={dataToShow}
+        labelAlign="left"
+        onChange={console.log}
+      >
         <Form.Item
           {...formItemLayout}
           name="ID"
@@ -128,6 +142,26 @@ const ModalView = (props: Props) => {
         >
           <Input placeholder="Mobile" />
         </Form.Item>
+        <Form.Item
+          {...formItemLayout}
+          name="Birthday"
+          label="Birthdate"
+          rules={[
+            {
+              required: true,
+              message: 'Please input your birthdate',
+            },
+            // {
+            //   validator: async (_, Date: string) => {
+            //     if (!Date || !Date.match(/^[0-9]*$/)) {
+            //       return Promise.reject(new Error('Need to be all number'));
+            //     }
+            //   },
+            // },
+          ]}
+        >
+          <DatePicker />
+        </Form.Item>
         <Form.List
           name="Address"
           // rules={[
@@ -164,11 +198,12 @@ const ModalView = (props: Props) => {
                   >
                     <Input placeholder="Address" style={{ width: '90%' }} />
                   </Form.Item>
-
-                  <MinusCircleOutlined
-                    className="dynamic-delete-button"
-                    onClick={() => remove(field.name)}
-                  />
+                  {index > 0 && (
+                    <MinusCircleOutlined
+                      className="dynamic-delete-button"
+                      onClick={() => remove(field.name)}
+                    />
+                  )}
                 </Form.Item>
               ))}
               {!readOnly && (
